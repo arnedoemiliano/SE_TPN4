@@ -18,16 +18,16 @@ SPDX-License-Identifier: MIT
 #ifndef TEMPLATE_H
 #define TEMPLATE_H
 
-/** \brief Brief description of the file
+/** \brief Modulo: digital
  **
- ** Full file description
+ ** Declaraciones publicas del modulo: digital
  **
- ** \addtogroup name Module denomination
- ** \brief Brief description of the module
+ ** \addtogroup digital Modulo digital
+ ** \brief -
  ** @{ */
 
 /* === Headers files inclusions ================================================================ */
-
+#include <stdint.h>
 /* === Cabecera C++ ============================================================================ */
 
 #ifdef __cplusplus
@@ -36,12 +36,20 @@ extern "C" {
 
 /* === Public macros definitions =============================================================== */
 
+typedef struct digital_output_s * digital_output_t;
+
 /* === Public data type declarations =========================================================== */
 
 /* === Public variable declarations ============================================================ */
 
 /* === Public function declarations ============================================================ */
+digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin);
 
+void DigitalOutputActivate(digital_output_t output);
+
+void DigitalOutputDeactivate(digital_output_t output);
+
+void DigitalOutputToggle(digital_output_t output);
 /* === End of documentation ==================================================================== */
 
 #ifdef __cplusplus

@@ -42,6 +42,7 @@
 
 #include "chip.h"
 #include <stdbool.h>
+#include <digital.h>
 
 /* === Macros definitions ====================================================================== */
 
@@ -75,6 +76,7 @@
 #define LED_2_GPIO 1
 #define LED_2_BIT  11
 
+// led verde
 #define LED_3_PORT 2
 #define LED_3_PIN  12
 #define LED_3_FUNC SCU_MODE_FUNC0
@@ -121,11 +123,19 @@
 
 int main(void) {
 
+    digital_output_t led_verde;
+
     int divisor = 0;
     bool current_state, last_state = false;
 
+    // Configura la funcion del terminal
     Chip_SCU_PinMuxSet(LED_R_PORT, LED_R_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_R_FUNC);
+    // Pone en bajo (antes de configurar como salida)
+    // false:bajo    true:alto
+    // LPC_GPIO_PORT: Puntero a una estructura con todos los registros del dispositivo
     Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
+    // Configura como salida
+    // true:salida   false:entrada
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true);
 
     Chip_SCU_PinMuxSet(LED_G_PORT, LED_G_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_G_FUNC);
@@ -146,8 +156,9 @@ int main(void) {
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, true);
 
     Chip_SCU_PinMuxSet(LED_3_PORT, LED_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_3_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
+    // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
+    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
+    led_verde = DigitalOutputCreate(LED_G_GPIO, LED_G_BIT);
 
     /******************/
     Chip_SCU_PinMuxSet(TEC_1_PORT, TEC_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_1_FUNC);
@@ -185,7 +196,8 @@ int main(void) {
         divisor++;
         if (divisor == 5) {
             divisor = 0;
-            Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT);
+            // Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT);
+            DigitalOutputToggle(led_verde);
         }
 
         for (int index = 0; index < 100; index++) {
