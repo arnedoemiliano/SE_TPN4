@@ -29,29 +29,51 @@ SPDX-License-Identifier: MIT
 #include "chip.h"
 
 /* === Macros definitions ====================================================================== */
+// Si no esta definido OUTPUT_INSTANCES en algun otro archivo h, se lo define aqui.
+#ifndef OUTPUT_INSTANCES
+    #define OUTPUT_INSTANCES 4
+#endif
 
 /* === Private data type declarations ========================================================== */
 struct digital_output_s {
     uint8_t port;
     uint8_t pin;
+    bool allocated;
 };
 /* === Private variable declarations =========================================================== */
 
 /* === Private function declarations =========================================================== */
-
+digital_output_t DigitalOutputAllocate(void);
 /* === Public variable definitions ============================================================= */
 
 /* === Private variable definitions ============================================================ */
 
 /* === Private function implementation ========================================================= */
-digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin) {
-    static struct digital_output_s output;
-    output.port = port;
-    output.pin = pin;
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output.port, output.pin, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, output.port, output.pin, true);
+// Funcion interna del DigitalOutputCreate(), solo esta funcion puede acceder a ella.
+digital_output_t DigitalOutputAllocate() {
+    static struct digital_output_s instances[OUTPUT_INSTANCES] = {0};
+    digital_output_t output = NULL;
 
-    return &output;
+    for (int i = 0; i < OUTPUT_INSTANCES; i++) {
+        if (instances[i].allocated == false) {
+            output = &instances[i];
+            instances[i].allocated = true;
+            break;
+        }
+    }
+    return output;
+}
+
+/* === Public function implementation ========================================================== */
+digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin) {
+
+    digital_output_t output = DigitalOutputAllocate();
+    output->port = port;
+    output->pin = pin;
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
+    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, output->port, output->pin, true);
+
+    return output;
 }
 
 void DigitalOutputToggle(digital_output_t output) {
@@ -59,8 +81,15 @@ void DigitalOutputToggle(digital_output_t output) {
     Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, output->port, output->pin);
 }
 
-/* === Public function implementation ========================================================== */
+void DigitalOutputActivate(digital_output_t output) {
 
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, true);
+}
+
+void DigitalOutputDeactivate(digital_output_t output) {
+
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
+}
 /* === End of documentation ==================================================================== */
 
 /** @} End of module definition for doxygen */
