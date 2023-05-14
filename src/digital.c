@@ -33,17 +33,29 @@ SPDX-License-Identifier: MIT
 #ifndef OUTPUT_INSTANCES
     #define OUTPUT_INSTANCES 4
 #endif
+#ifndef INPUT_INSTANCES
+    #define INPUT_INSTANCES 4
+#endif
 
 /* === Private data type declarations ========================================================== */
 struct digital_output_s {
     uint8_t port;
     uint8_t pin;
-    bool allocated;
+    bool allocated : 1;
+};
+
+struct digital_input_s {
+    uint8_t port;
+    uint8_t pin;
+    bool allocated : 1;
+    bool inverted : 1;
+    bool last_change : 1;
 };
 /* === Private variable declarations =========================================================== */
 
 /* === Private function declarations =========================================================== */
 digital_output_t DigitalOutputAllocate(void);
+digital_input_t DigitalInputAllocate(void);
 /* === Public variable definitions ============================================================= */
 
 /* === Private variable definitions ============================================================ */
@@ -64,7 +76,21 @@ digital_output_t DigitalOutputAllocate() {
     return output;
 }
 
+digital_input_t DigitalInputAllocate() {
+    static struct digital_input_s instances[INPUT_INSTANCES] = {0};
+    digital_input_t input = NULL;
+    for (int i = 0; i < OUTPUT_INSTANCES; i++) {
+        if (instances[i].allocated == false) {
+            input = &instances[i];
+            instances[i].allocated = true;
+            break;
+        }
+    }
+    return input;
+}
+
 /* === Public function implementation ========================================================== */
+/* --------------------------SALIDAS-------------------------- */
 digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin) {
 
     digital_output_t output = DigitalOutputAllocate();
@@ -90,6 +116,52 @@ void DigitalOutputDeactivate(digital_output_t output) {
 
     Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
 }
+
+/* --------------------------ENTRADAS-------------------------- */
+
+digital_input_t DigitalInputCreate(uint8_t port, uint8_t pin, bool inverted) {
+
+    digital_input_t input = DigitalInputAllocate();
+    if (input) { // si es una direccion valida será true, si es NULL false
+        input->pin = pin;
+        input->port = port;
+        input->inverted = inverted;
+        Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, input->port, input->pin, false);
+    }
+
+    return input;
+}
+
+bool DigitalInputGetState(digital_input_t input) {
+
+    return input->inverted ^ Chip_GPIO_GetPinState(LPC_GPIO_PORT, input->port, input->pin);
+}
+
+bool DigitalInputHasChanged(digital_input_t input) {
+
+    bool current_state = DigitalInputGetState(input);
+    bool result = current_state != input->last_change;
+    input->last_change = current_state;
+    return result;
+}
+
+bool DigitalInputHasActivated(digital_input_t input) {
+
+    // verifica solo si la entrada fue activada
+    bool current_state = DigitalInputGetState(input);
+    bool result = current_state && !input->last_change;
+    input->last_change = current_state;
+    return result;
+}
+
+bool DigitalInputHasDeactivated(digital_input_t input) {
+
+    bool current_state = DigitalInputGetState(input);
+    bool result = !current_state && input->last_change;
+    input->last_change = current_state;
+    return result;
+}
+
 /* === End of documentation ==================================================================== */
 
 /** @} End of module definition for doxygen */
