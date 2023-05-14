@@ -42,70 +42,9 @@
 
 #include "chip.h"
 #include <stdbool.h>
-#include <digital.h>
+#include <bsp.h>
 
 /* === Macros definitions ====================================================================== */
-
-#define LED_R_PORT 2
-#define LED_R_PIN  0
-#define LED_R_FUNC SCU_MODE_FUNC4
-#define LED_R_GPIO 5
-#define LED_R_BIT  0
-
-#define LED_G_PORT 2
-#define LED_G_PIN  1
-#define LED_G_FUNC SCU_MODE_FUNC4
-#define LED_G_GPIO 5
-#define LED_G_BIT  1
-
-#define LED_B_PORT 2
-#define LED_B_PIN  2
-#define LED_B_FUNC SCU_MODE_FUNC4
-#define LED_B_GPIO 5
-#define LED_B_BIT  2
-
-#define LED_1_PORT 2
-#define LED_1_PIN  10
-#define LED_1_FUNC SCU_MODE_FUNC0
-#define LED_1_GPIO 0
-#define LED_1_BIT  14
-
-#define LED_2_PORT 2
-#define LED_2_PIN  11
-#define LED_2_FUNC SCU_MODE_FUNC0
-#define LED_2_GPIO 1
-#define LED_2_BIT  11
-
-// led verde
-#define LED_3_PORT 2
-#define LED_3_PIN  12
-#define LED_3_FUNC SCU_MODE_FUNC0
-#define LED_3_GPIO 1
-#define LED_3_BIT  12
-
-#define TEC_1_PORT 1
-#define TEC_1_PIN  0
-#define TEC_1_FUNC SCU_MODE_FUNC0
-#define TEC_1_GPIO 0
-#define TEC_1_BIT  4
-
-#define TEC_2_PORT 1
-#define TEC_2_PIN  1
-#define TEC_2_FUNC SCU_MODE_FUNC0
-#define TEC_2_GPIO 0
-#define TEC_2_BIT  8
-
-#define TEC_3_PORT 1
-#define TEC_3_PIN  2
-#define TEC_3_FUNC SCU_MODE_FUNC0
-#define TEC_3_GPIO 0
-#define TEC_3_BIT  9
-
-#define TEC_4_PORT 1
-#define TEC_4_PIN  6
-#define TEC_4_FUNC SCU_MODE_FUNC0
-#define TEC_4_GPIO 1
-#define TEC_4_BIT  9
 
 /* === Private data type declarations ========================================================== */
 
@@ -123,105 +62,45 @@
 
 int main(void) {
 
-    digital_output_t led_verde;
-    digital_output_t led_amarillo;
-    digital_output_t led_rojo;
-    digital_output_t led_azul;
-
-    digital_input_t tecla_1;
-    digital_input_t tecla_2;
-    digital_input_t tecla_3;
-    digital_input_t tecla_4;
+    board_t board = BoardCreate();
 
     int divisor = 0;
     // bool current_state, last_state = false;
 
-    // Configura la funcion del terminal
-    Chip_SCU_PinMuxSet(LED_R_PORT, LED_R_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_R_FUNC);
-    // Pone en bajo (antes de configurar como salida)
-    // false:bajo    true:alto
-    // LPC_GPIO_PORT: Puntero a una estructura con todos los registros del dispositivo
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
-    // Configura como salida
-    // true:salida   false:entrada
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true);
-
-    Chip_SCU_PinMuxSet(LED_G_PORT, LED_G_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_G_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, true);
-
-    Chip_SCU_PinMuxSet(LED_B_PORT, LED_B_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_B_FUNC);
-    // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
-    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
-    led_azul = DigitalOutputCreate(LED_B_GPIO, LED_B_PIN);
-
-    /******************/
-    Chip_SCU_PinMuxSet(LED_1_PORT, LED_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_1_FUNC);
-    // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, false);
-    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, true);
-    led_rojo = DigitalOutputCreate(LED_1_GPIO, LED_1_BIT);
-
-    Chip_SCU_PinMuxSet(LED_2_PORT, LED_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_2_FUNC);
-    // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, false);
-    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, true);
-    led_amarillo = DigitalOutputCreate(LED_2_GPIO, LED_2_BIT);
-
-    Chip_SCU_PinMuxSet(LED_3_PORT, LED_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_3_FUNC);
-    // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
-    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
-    led_verde = DigitalOutputCreate(LED_3_GPIO, LED_3_BIT);
-
-    /******************/
-    Chip_SCU_PinMuxSet(TEC_1_PORT, TEC_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_1_FUNC);
-    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT, false);
-    tecla_1 = DigitalInputCreate(TEC_1_GPIO, TEC_1_BIT, true);
-
-    Chip_SCU_PinMuxSet(TEC_2_PORT, TEC_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_2_FUNC);
-    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT, false);
-    tecla_2 = DigitalInputCreate(TEC_2_GPIO, TEC_2_BIT, true);
-
-    Chip_SCU_PinMuxSet(TEC_3_PORT, TEC_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_3_FUNC);
-    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT, false);
-    tecla_3 = DigitalInputCreate(TEC_3_GPIO, TEC_3_BIT, true);
-
-    Chip_SCU_PinMuxSet(TEC_4_PORT, TEC_4_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_4_FUNC);
-    // Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT, false);
-    tecla_4 = DigitalInputCreate(TEC_4_GPIO, TEC_4_BIT, true);
-
     while (true) {
         // if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
-        if (DigitalInputGetState(tecla_1)) {
+        if (DigitalInputGetState(board->tecla_1)) {
             // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
-            DigitalOutputActivate(led_azul);
+            DigitalOutputActivate(board->led_azul);
         } else {
             // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
-            DigitalOutputDeactivate(led_azul);
+            DigitalOutputDeactivate(board->led_azul);
         }
 
         // current_state = (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT) == 0);
         // if ((current_state) && (!last_state)) {
-        if (DigitalInputHasActivated(tecla_2)) {
+        if (DigitalInputHasActivated(board->tecla_2)) {
             // Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT);
-            DigitalOutputToggle(led_rojo);
+            DigitalOutputToggle(board->led_rojo);
         }
         // last_state = current_state;
 
         // if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT) == 0) {
-        if (DigitalInputGetState(tecla_3)) {
+        if (DigitalInputGetState(board->tecla_3)) {
             // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, true);
-            DigitalOutputActivate(led_amarillo);
+            DigitalOutputActivate(board->led_amarillo);
         }
         // if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT) == 0) {
-        if (DigitalInputGetState(tecla_4)) {
+        if (DigitalInputGetState(board->tecla_4)) {
             // Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, false);
-            DigitalOutputDeactivate(led_amarillo);
+            DigitalOutputDeactivate(board->led_amarillo);
         }
 
         divisor++;
         if (divisor == 5) {
             divisor = 0;
             // Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT);
-            DigitalOutputToggle(led_verde);
+            DigitalOutputToggle(board->led_verde);
         }
 
         for (int index = 0; index < 100; index++) {
