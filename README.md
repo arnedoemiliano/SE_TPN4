@@ -1,22 +1,34 @@
-# Plantilla de Proyectos
+# Laboratorio de Microprocesadores: Trabajo Práctico N°4
 
------
+ Capa de abstracción de hardware HAL (Hardware Abstraction Layer)
 
-Plantilla de proyectos para trabajos prácticos de Sistemas Embebidos.
+## Instalación
 
-**Table of Contents**
+Usar el programa [make](https://www.gnu.org/software/make/) para compilar y generar en la carpeta <build/bin> el ejecutable 'app.elf'. El comando generará la carpeta build en caso de que no existiera.  
+1. Clonar el repositorio desde GitHub:
 
-- [Forma de uso](#forma-de-uso)
-- [License](#license)
+    ```bash
+    git clone https://github.com/arnedoemiliano/SE_TPN4.git
+    ```
+2. Acceder a la ubicacion del proyecto:
+     ```bash
+    cd SE_TPN4
+    ```
+3. Compilar el proyecto:
+     ```go
+    make all
+    ```
+4. Ejecutar el archivo '.elf' generado:
+     ```bash
+    ./build/bin/app.elf
+    ```
 
-## Forma de uso
+## Licencia
 
-Para utilizar este repositorio deben:
+[MIT](https://choosealicense.com/licenses/mit/)
 
-1. Crear un fork del repositorio en la página de Github. Esto creará un repositorio independiente propiedad del alumno pero que comparte los primeros commits con este repositorio.
+## Créditos
 
-2. Clonar el repositorio usando la opción de incializar los submodulos. Si se hace por comandos se debe incluir el parámetro `–recurse-submodules` en el comando de clonación
+Este proyecto forma parte del trabajo práctico N°3 de la asignatura Laboratorio de Microprocesadores de la [Facultad de Ciencias Exactas y Tecnología](https://www.facet.unt.edu.ar/) de la Universidad Nacional de Tucumán.
 
-## License
 
-This template is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
