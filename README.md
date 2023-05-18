@@ -29,6 +29,6 @@ Usar el programa [make](https://www.gnu.org/software/make/) para compilar y gene
 
 ## Créditos
 
-Este proyecto forma parte del trabajo práctico N°3 de la asignatura Laboratorio de Microprocesadores de la [Facultad de Ciencias Exactas y Tecnología](https://www.facet.unt.edu.ar/) de la Universidad Nacional de Tucumán.
+Este proyecto forma parte del trabajo práctico N°4 de la asignatura Laboratorio de Microprocesadores de la [Facultad de Ciencias Exactas y Tecnología](https://www.facet.unt.edu.ar/) de la Universidad Nacional de Tucumán.
 
 
